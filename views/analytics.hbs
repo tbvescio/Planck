@@ -1,0 +1,17 @@
+<main>
+
+    {{#if ids}}
+    <div class="item-container">
+        <h1>Your Urls:</h1>
+        {{#each ids}}
+        <div class="item">
+            <a href="/analytics/{{this.idURLs}}">localhost:3000/{{this.urlConverted}} -- {{this.url}}</a>
+        </div>
+        {{/each}}
+    </div>
+    {{else}}
+    <div class="errorMessage">
+        <h1>You don't have Urls</h1>
+    </div>
+    {{/if}}
+</main>

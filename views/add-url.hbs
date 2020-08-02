@@ -1,0 +1,22 @@
+<main>
+    {{#unless user}}
+    <div class="errorMessage errorAnalytics">
+        <h1>Login if you want analytics!</h1>
+    </div>
+    {{/unless}}
+    {{#if errorMessage}}
+    <div class="errorMessage" >
+        <h1>{{errorMessage}}</h1>
+    </div>
+    {{/if}}
+
+
+    <form action="/add-url" method="POST" class="form-add-url">
+        <input type="url" name="url">
+        <input type="submit" value="Submit" class="btn">
+    </form>
+
+    {{#if url}}
+    <h2 class="url">Your url: localhost:/3000:{{url}}</h2>
+    {{/if}}
+</main>

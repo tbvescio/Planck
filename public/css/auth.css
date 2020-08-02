@@ -1,0 +1,22 @@
+.auth-form {
+    padding: 50px;
+    width: 20%;
+    margin-left: 40%;
+    margin-top: 10%;
+}
+
+.auth-form label {
+    display: block;
+    padding-bottom: 10px;
+}
+
+.auth-form input {
+    padding: 8px;
+    width: 100%;
+    border-radius: 20px;
+}
+
+
+.form-group {
+    padding-bottom: 25px;
+}
