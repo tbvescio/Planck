@@ -1,16 +1,23 @@
 <main>
-
     {{#if ids}}
-    <div class="item-container">
-        <h1>Your Urls:</h1>
-        {{#each ids}}
-        <div class="item">
-            <a href="/analytics/{{this.idURLs}}">localhost:3000/{{this.urlConverted}} -- {{this.url}}</a>
+    <div class="d-flex justify-content-center h-100">
+        <div class="row col-md-8" style="display: block;">
+            <h1>Your Urls:</h1>
+            <div class="card col" style="color: black; word-spacing: 1em;">
+                {{#each ids}}
+                <a href="/analytics/{{this.idURLs}}" style="color: inherit">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item col">Shortened:
+                            <strong>{{../domain}}{{this.urlConverted}}</strong><br />
+                            Original: {{this.url}}</li>
+                    </ul>
+                </a>
+                {{/each}}
+            </div>
         </div>
-        {{/each}}
     </div>
     {{else}}
-    <div class="errorMessage">
+    <div class="alert alert-danger" role="alert">
         <h1>You don't have Urls</h1>
     </div>
     {{/if}}

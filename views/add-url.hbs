@@ -1,22 +1,40 @@
 <main>
     {{#unless user}}
-    <div class="errorMessage errorAnalytics">
-        <h1>Login if you want analytics!</h1>
+    <div class="alert alert-warning " role="alert">
+        Login if you want analytics!
     </div>
     {{/unless}}
+
     {{#if errorMessage}}
-    <div class="errorMessage" >
-        <h1>{{errorMessage}}</h1>
+    <div class="alert alert-danger" role="alert">
+        {{errorMessage}}
     </div>
     {{/if}}
 
+    <div class="row justify-content-center" style="margin-bottom: 2.5em;margin-top: 10em;">
+        <div class="home-text">
+            <h1><strong>URL Shortener</strong></h1>
+            <h2>Simplify your links and track them!</h2>
+        </div>
+    </div>
 
-    <form action="/add-url" method="POST" class="form-add-url">
-        <input type="url" name="url">
-        <input type="submit" value="Submit" class="btn">
-    </form>
+    <div>
+        <form action="/add-url" method="POST">
+            <div class="form-group justify-content-center" id="add-url-container">
+                <input type="url" class="form-control col-md-5" name="url" placeholder="Enter your url here!">
+                <button type="submit" class="btn btn-primary col-md-1">Submit</button>
+            </div>
+        </form>
+    </div>
+
+
+
 
     {{#if url}}
-    <h2 class="url">Your url: localhost:/3000:{{url}}</h2>
+    <div class="row justify-content-center">
+        <div class="alert alert-dark" role="alert" style="margin-top: 2em;">
+            Your shortered URL: <a href="{{domain}}{{url}}" class="alert-link">{{domain}}{{url}}</a>.
+        </div>
+    </div>
     {{/if}}
 </main>

@@ -1,21 +1,27 @@
 <main>
-    <div class="errorMessage">
-        <h1>{{errorMessage}}</h1>
+    {{#if errorMessage}}
+    <div class="alert alert-danger" role="alert">
+        {{errorMessage}}
     </div>
+    {{/if}}
 
-
-    <form action="/login" method="POST" class="auth-form">
-        <div class="form-group">
-            <label for="username" class="form__label">Username:</label>
-            <input type="text" name="username" value="{{oldInput.username}}" class="form__field">
-
+    <div class="d-flex justify-content-center h-100" style="margin-top: 15%;">
+        <div class="card-container">
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control " name="username " value="{{oldInput.username}}"
+                        placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" class="form-control " value="{{oldInput.password}}"
+                        placeholder="Password">
+                </div>
+                <button type="submit" class="btn btn-primary col form-btn">Submit</button>
+            </form>
         </div>
-        <div class="form-group">
-            <label for="password" class="form__label">Password:</label>
-            <input type="password" name="password" value="{{oldInput.password}}" class="form__field">
-        </div>
-        <input type="submit" value="Submit" class="btn">
-    </form>
+    </div>
 
 
 </main>

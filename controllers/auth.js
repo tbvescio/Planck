@@ -4,7 +4,7 @@ const db = require("../util/database").db;
 exports.getRegister = (req, res, next) => {
   res.render("register", {
     pageTitle: "Register",
-    errorMessage: "",
+    errorMessage: null,
     oldInput: {
       username: "",
       password: "",
@@ -13,96 +13,97 @@ exports.getRegister = (req, res, next) => {
   });
 };
 
-exports.postRegister = (req, res, next) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  const confirmPassword = req.body.passwordConfirm;
+exports.postRegister = async (req, res, next) => {
+  try {
+    const username = req.body.username;
+    const password = req.body.password;
+    const confirmPassword = req.body.passwordConfirm;
 
-  if (password !== confirmPassword) {
-    return res.status(422).render("register", {
-      pageTitle: "Register",
-      errorMessage: "Passwords don't match!",
-      oldInput: {
-        username: username,
-        password: password,
-        confirmPassword: confirmPassword,
-      },
-    });
+    if (password !== confirmPassword) {
+      return res.status(422).render("register", {
+        pageTitle: "Register",
+        errorMessage: "Passwords don't match!",
+        oldInput: {
+          username: username,
+          password: password,
+          confirmPassword: confirmPassword,
+        },
+      });
+    }
+
+    const [rows] = await db.execute("SELECT * FROM USERS WHERE username=?", [
+      username,
+    ]);
+    if (rows.length != 0) {
+      return res.status(422).render("register", {
+        pageTitle: "Register",
+        errorMessage: "Already register username!",
+        oldInput: {
+          username: username,
+          password: password,
+          confirmPassword: confirmPassword,
+        },
+      });
+    }
+
+    const hashedPassw = await bcrypt.hash(password, 12);
+    await db.execute("INSERT INTO USERS (username, password) VALUES (?,?)", [
+      username,
+      hashedPassw,
+    ]);
+    res.redirect("/login");
+  } catch (err) {
+    res.redirect("/error");
   }
-
-  db.execute("SELECT * FROM USERS WHERE username=?", [username])
-    .then((result) => {
-      //if its registered already
-      if (result[0].length != 0) {
-        return res.status(422).render("register", {
-          pageTitle: "Register",
-          errorMessage: "Already register username!",
-          oldInput: {
-            username: username,
-            password: password,
-            confirmPassword: confirmPassword,
-          },
-        });
-      } else {
-        return bcrypt.hash(password, 12);
-      }
-    })
-    .then((hashedPassw) => {
-      return db.execute("INSERT INTO USERS (username, password) VALUES (?,?)", [
-        username,
-        hashedPassw,
-      ]);
-    })
-    .then(() => res.redirect("/login"))
-    .catch((err) => res.redirect("/error"));
 };
 
 exports.getLogin = (req, res, next) => {
   res.render("login", {
     pageTitle: "Login",
-    errorMessage: "",
+    errorMessage: null,
     oldInput: { username: "", password: "" },
   });
 };
 
-exports.postLogin = (req, res, next) => {
-  const username = req.body.username;
-  const password = req.body.password;
+exports.postLogin = async (req, res, next) => {
+  try {
+    const username = req.body.username;
+    const password = req.body.password;
+    
+    let user;
+    const [rows] = await db.execute("SELECT * FROM USERS");
 
-  let user;
+    if (rows.length == 0) {
+      return res.status(422).render("login", {
+        pageTitle: "Login",
+        errorMessage: "Incorrect data!",
+        oldInput: {
+          username: username,
+          password: password,
+        },
+      });
+    }
 
-  db.execute("SELECT * FROM USERS WHERE username=?", [username])
-    .then((result) => {
-      if (result[0].length != 0) {
-        user = result[0][0];
-        return bcrypt.compare(password, result[0][0].password)
-      } else {
-        return res.status(422).render("login", {
-          pageTitle: "Login",
-          errorMessage: "Incorrect data!",
-          oldInput: {
-            username: username,
-            password: password,
-          },
-        });
-      }
-    })
-    .then((doMatch) =>{
-      if(doMatch){
-        req.session.isLogged = true;
-        req.session.user = user;
-        return req.session.save(() => res.redirect("/"));
-      }
-      else{
-        return res.status(422).render("login", {
-          pageTitle: "Login",
-          errorMessage: "Incorrect data!",
-          oldInput: {
-            username: username,
-            password: password,
-          },
-        });
-      }
-    })
-    .catch((err) => res.redirect("/error"));
+    user = rows[0];
+    console.log(user)
+    const doMatch = await bcrypt.compare(password, user.password);
+    if (doMatch) {
+      req.session.isLogged = true;
+      req.session.user = user;
+      await req.session.save();
+      res.redirect("/");
+    } else {
+      return res.status(422).render("login", {
+        pageTitle: "Login",
+        errorMessage: "Incorrect data!",
+        oldInput: {
+          username: username,
+          password: password,
+        },
+      });
+    }
+  } catch (err) {
+    
+    res.redirect("/error");
+  }
 };
