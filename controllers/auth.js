@@ -31,7 +31,7 @@ exports.postRegister = async (req, res, next) => {
       });
     }
 
-    const [rows] = await db.execute("SELECT * FROM USERS WHERE username=?", [
+    const [rows] = await db.execute("SELECT * FROM users WHERE username=?", [
       username,
     ]);
     if (rows.length != 0) {
@@ -47,7 +47,7 @@ exports.postRegister = async (req, res, next) => {
     }
 
     const hashedPassw = await bcrypt.hash(password, 12);
-    await db.execute("INSERT INTO USERS (username, password) VALUES (?,?)", [
+    await db.execute("INSERT INTO users (username, password) VALUES (?,?)", [
       username,
       hashedPassw,
     ]);
@@ -71,7 +71,7 @@ exports.postLogin = async (req, res, next) => {
     const password = req.body.password;
     
     let user;
-    const [rows] = await db.execute("SELECT * FROM USERS");
+    const [rows] = await db.execute("SELECT * FROM users");
 
     if (rows.length == 0) {
       return res.status(422).render("login", {
@@ -103,7 +103,7 @@ exports.postLogin = async (req, res, next) => {
       });
     }
   } catch (err) {
-    
+    console.log(err)
     res.redirect("/error");
   }
 };

@@ -26,7 +26,7 @@ exports.postAddUrl = async (req, res, next) => {
     }
 
     //Check if the url is already in the db
-    const [fetchedUrl] = await db.execute("SELECT * FROM URLs WHERE url=?", [url]);
+    const [fetchedUrl] = await db.execute("SELECT * FROM urls WHERE url=?", [url]);
     if (fetchedUrl.length > 0) {
       return res.render("add-url", {
         pageTitle: "UrlShorter",
@@ -35,14 +35,13 @@ exports.postAddUrl = async (req, res, next) => {
       });
     }
 
-    const [lastId] = await db.execute("SELECT max(idURLs) as n FROM URLs");
+    const [lastId] = await db.execute("SELECT max(idURLs) as n FROM urls");
     let nextId = lastId[0].n + 1;
-
     let buff = Buffer.from(nextId.toString());
     let urlConverted = buff.toString("base64");
     await db.execute(
-      "INSERT INTO URLs (url, urlConverted, idUser) VALUES (?,?,?)",
-      [url, urlConverted, idUser]
+      "INSERT INTO urls (idURLs,url, urlConverted, idUser) VALUES (?,?,?,?)",
+      [nextId,url, urlConverted, idUser]
     );
     res.render("add-url", {
       pageTitle: "UrlShorter",
@@ -63,19 +62,17 @@ exports.getRedirect = async (req, res, next) => {
     let decoded = binaryData.toString("utf8");
 
     let url;
-
-    const [fetchedUrl] = await db.execute("SELECT url, idUser FROM URLs WHERE idURLs=?", [decoded]);
+    const [fetchedUrl] = await db.execute("SELECT url, idUser FROM urls WHERE idURLs=?", [decoded]);
 
     //there is no url found
     if (fetchedUrl.length == 0) {
       res.redirect("/error");
     }
-
     url = fetchedUrl[0].url;
     idUser = fetchedUrl[0].idUser;
     if (idUser != null) {
       await db.execute(
-        "INSERT INTO CLICKS_LOG (idURL, browser, os) VALUES (?,?,?)",
+        "INSERT INTO clicks_log (idURL, browser, os) VALUES (?,?,?)",
         [decoded, req.useragent["browser"], req.useragent["platform"]]
       );
     }
@@ -91,7 +88,7 @@ exports.getAnalytics = async (req, res, next) => {
       return res.redirect("/login");
     }
     const idUser = req.session.user.idUSERS;
-    const [urls] = await db.execute("SELECT idURLs, url, urlConverted FROM URLs WHERE idUser=?",[idUser]);
+    const [urls] = await db.execute("SELECT idURLs, url, urlConverted FROM urls WHERE idUser=?",[idUser]);
     res.render("analytics", {
       pageTitle: "Analytics",
       ids: urls,
@@ -109,7 +106,7 @@ exports.getAnalyticsById = async (req, res, next) => {
       return res.redirect("/login");
     }
     const idURL = req.params.idURL;
-    const [clicks] = await db.execute("SELECT * FROM CLICKS_LOG WHERE idURL=?", [idURL]);
+    const [clicks] = await db.execute("SELECT * FROM clicks_log WHERE idURL=?", [idURL]);
     totalClicks = clicks.length;
     
     //BROWSER DATA
