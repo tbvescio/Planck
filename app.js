@@ -42,5 +42,5 @@ app.use(
 app.use("/", routes);
 const port = process.env.PORT || 3000;
 app.listen(port, () =>{
-  console.log("listen at " + port)
+  console.log(`*** listening at port:${port} ***`)
 });
