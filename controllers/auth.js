@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const db = require("../util/database").db;
 
-exports.getRegister = (req, res, next) => {
+exports.getRegister = (req, res) => {
   res.render("register", {
     pageTitle: "Register",
     errorMessage: null,
@@ -13,37 +13,18 @@ exports.getRegister = (req, res, next) => {
   });
 };
 
-exports.postRegister = async (req, res, next) => {
+exports.postRegister = async (req, res) => {
+  const { username, password, confirmPassword } = req.body;
   try {
-    const username = req.body.username;
-    const password = req.body.password;
-    const confirmPassword = req.body.passwordConfirm;
-
     if (password !== confirmPassword) {
-      return res.status(422).render("register", {
-        pageTitle: "Register",
-        errorMessage: "Passwords don't match!",
-        oldInput: {
-          username: username,
-          password: password,
-          confirmPassword: confirmPassword,
-        },
-      });
+      throw new Error("Passwords don't match!");
     }
 
     const [rows] = await db.execute("SELECT * FROM users WHERE username=?", [
       username,
     ]);
     if (rows.length != 0) {
-      return res.status(422).render("register", {
-        pageTitle: "Register",
-        errorMessage: "Already register username!",
-        oldInput: {
-          username: username,
-          password: password,
-          confirmPassword: confirmPassword,
-        },
-      });
+      throw new Error("Username already register !");
     }
 
     const hashedPassw = await bcrypt.hash(password, 12);
@@ -53,11 +34,19 @@ exports.postRegister = async (req, res, next) => {
     ]);
     res.redirect("/login");
   } catch (err) {
-    res.redirect("/error");
+    return res.status(422).render("register", {
+      pageTitle: "Register",
+      errorMessage: err.message,
+      oldInput: {
+        username: username,
+        password: password,
+        confirmPassword: confirmPassword,
+      },
+    });
   }
 };
 
-exports.getLogin = (req, res, next) => {
+exports.getLogin = (req, res) => {
   res.render("login", {
     pageTitle: "Login",
     errorMessage: null,
@@ -65,45 +54,33 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
-exports.postLogin = async (req, res, next) => {
+exports.postLogin = async (req, res) => {
+  const { username, password } = req.body;
   try {
-    const username = req.body.username;
-    const password = req.body.password;
-    
-    let user;
     const [rows] = await db.execute("SELECT * FROM users");
 
     if (rows.length == 0) {
-      return res.status(422).render("login", {
-        pageTitle: "Login",
-        errorMessage: "Incorrect data!",
-        oldInput: {
-          username: username,
-          password: password,
-        },
-      });
+      throw new Error("Incorrect data!");
     }
 
-    user = rows[0];
-    console.log(user)
-    const doMatch = await bcrypt.compare(password, user.password);
+    let fechedUser = rows[0];
+    const doMatch = await bcrypt.compare(password, fechedUser.password);
     if (doMatch) {
       req.session.isLogged = true;
-      req.session.user = user;
+      req.session.user = fechedUser;
       await req.session.save();
       res.redirect("/");
     } else {
-      return res.status(422).render("login", {
-        pageTitle: "Login",
-        errorMessage: "Incorrect data!",
-        oldInput: {
-          username: username,
-          password: password,
-        },
-      });
+      throw new Error("Incorrect data!");
     }
   } catch (err) {
-    console.log(err)
-    res.redirect("/error");
+    return res.status(422).render("login", {
+      pageTitle: "Login",
+      errorMessage: err.message,
+      oldInput: {
+        username: username,
+        password: password,
+      },
+    });
   }
 };

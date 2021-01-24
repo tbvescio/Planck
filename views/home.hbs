@@ -1,0 +1,46 @@
+<main>
+    {{#if errorMessage}}
+    <div class="notification is-danger">
+        <p class="has-text-weight-bold is-size-5">
+            {{errorMessage}}
+        </p>
+    </div>
+    {{/if}}
+
+    {{#if url}}
+    <div class="notification is-primary">
+        <p class="has-text-weight-bold is-size-5">
+            Your shortered URL: <a href="{{domain}}{{url}}" class="alert-link">{{domain}}{{url}}</a>.
+        </p>
+    </div>
+    {{/if}}
+
+    <section class="section pt-0">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-half">
+                    <img class="mt-6" src="/main-picture.svg"
+                        style="width: 70%; height: auto;display: block; margin: 0 auto;">
+
+                    <h1 class="title is-1 is-size-3-mobile has-text-centered has-text-weight-bold mt-6">Shorten any link.</h1>
+                    <h2 class="subtitle is-size-6-mobile has-text-centered mt-3">Build, track and protect your brand using powerful,
+                        recognizable and short links. <span class="has-text-primary">Completely free. Forever.</span>
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <form action="/" method="POST">
+        <div class="field has-addons has-addons-centered">
+            <div class="control ">
+                <input class="input is-medium" type="url" name="url" placeholder="Enter your url here!" />
+            </div>
+            <div class="control">
+                <button type="submit" class="button is-primary is-medium">Submit</button>
+            </div>
+        </div>
+    </form>
+
+</main>

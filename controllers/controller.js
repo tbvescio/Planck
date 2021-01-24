@@ -1,11 +1,10 @@
 const db = require("../util/database").db;
-require("dotenv").config();
 
-exports.getAddUrl = (req, res, next) => {
-  res.render("add-url", {
-    pageTitle: "Short Url",
+exports.getHome = (req, res, next) => {
+  res.render("home", {
+    pageTitle: "Planck",
     user: req.session.user,
-    domain: process.env.DOMAIN
+    domain: process.env.DOMAIN,
   });
 };
 
@@ -18,39 +17,41 @@ exports.postAddUrl = async (req, res, next) => {
         : req.session.user.idUSERS.toString();
 
     if (!url) {
-      return res.render("add-url", {
-        pageTitle: "UrlShorter",
-        user: req.session.user,
-        errorMessage: "Enter an url",
-      });
+      throw new Error("Please enter an url before submitting.");
     }
 
     //Check if the url is already in the db
-    const [fetchedUrl] = await db.execute("SELECT * FROM urls WHERE url=?", [url]);
+    const [fetchedUrl] = await db.execute("SELECT * FROM urls WHERE url=?", [
+      url,
+    ]);
     if (fetchedUrl.length > 0) {
-      return res.render("add-url", {
-        pageTitle: "UrlShorter",
-        user: req.session.user,
-        errorMessage: "Url is already shorted",
-      });
+      throw new Error("Url is already shorted");
     }
 
     const [lastId] = await db.execute("SELECT max(idURLs) as n FROM urls");
     let nextId = lastId[0].n + 1;
+
+    //Convert nextId to base64
     let buff = Buffer.from(nextId.toString());
     let urlConverted = buff.toString("base64");
+
     await db.execute(
-      "INSERT INTO urls (idURLs,url, urlConverted, idUser) VALUES (?,?,?,?)",
-      [nextId,url, urlConverted, idUser]
+      "INSERT INTO urls (idURLs,url, urlConverted, idUser, createdAt) VALUES (?,?,?,?,?)",
+      [nextId, url, urlConverted, idUser, new Date()]
     );
-    res.render("add-url", {
+
+    res.render("home", {
       pageTitle: "UrlShorter",
       url: urlConverted,
       user: req.session.user,
-      domain: process.env.DOMAIN
+      domain: process.env.DOMAIN,
     });
   } catch (err) {
-    res.redirect("/error");
+    return res.render("home", {
+      pageTitle: "UrlShorter",
+      user: req.session.user,
+      errorMessage: err.message,
+    });
   }
 };
 
@@ -61,14 +62,18 @@ exports.getRedirect = async (req, res, next) => {
     let binaryData = Buffer.from(encodedUrl, "base64");
     let decoded = binaryData.toString("utf8");
 
-    let url;
-    const [fetchedUrl] = await db.execute("SELECT url, idUser FROM urls WHERE idURLs=?", [decoded]);
+    const [
+      fetchedUrl,
+    ] = await db.execute("SELECT url, idUser FROM urls WHERE idURLs=?", [
+      decoded,
+    ]);
 
     //there is no url found
     if (fetchedUrl.length == 0) {
-      res.redirect("/error");
+      throw new Error();
     }
-    url = fetchedUrl[0].url;
+
+    let url = fetchedUrl[0].url;
     idUser = fetchedUrl[0].idUser;
     if (idUser != null) {
       await db.execute(
@@ -76,6 +81,7 @@ exports.getRedirect = async (req, res, next) => {
         [decoded, req.useragent["browser"], req.useragent["platform"]]
       );
     }
+
     res.status(301).redirect(url);
   } catch (err) {
     res.redirect("/error");
@@ -88,12 +94,18 @@ exports.getAnalytics = async (req, res, next) => {
       return res.redirect("/login");
     }
     const idUser = req.session.user.idUSERS;
-    const [urls] = await db.execute("SELECT idURLs, url, urlConverted FROM urls WHERE idUser=?",[idUser]);
+    const [
+      urls,
+    ] = await db.execute(
+      "SELECT idURLs, url, urlConverted, DATE_FORMAT(createdAt,'%d/%m/%Y') as createdAt FROM urls WHERE idUser=?",
+      [idUser]
+    );
+
     res.render("analytics", {
       pageTitle: "Analytics",
-      ids: urls,
+      urls,
       user: req.session.user,
-      domain: process.env.DOMAIN
+      domain: process.env.DOMAIN,
     });
   } catch (err) {
     res.redirect("/error");
@@ -101,82 +113,71 @@ exports.getAnalytics = async (req, res, next) => {
 };
 
 exports.getAnalyticsById = async (req, res, next) => {
-  try{
+  try {
     if (req.session.user == undefined) {
       return res.redirect("/login");
     }
     const idURL = req.params.idURL;
-    const [clicks] = await db.execute("SELECT * FROM clicks_log WHERE idURL=?", [idURL]);
+    const [clicks] = await db.execute(
+      "SELECT * FROM clicks_log WHERE idURL=?",
+      [idURL]
+    );
     totalClicks = clicks.length;
-    
-    //BROWSER DATA
+
+
+    //Parse logs
     let dataBrowser = [];
     let labelsBrowser = [];
-
-    for (let index = 0; index < totalClicks; index++) {
-      const elementBrowser = { x: clicks[index].browser, y: 1 };
-      let found = false;
-
-      for (let x = 0; x < dataBrowser.length; x++) {
-        if (dataBrowser[x].x === elementBrowser.x) {
-          dataBrowser[x].y += 1;
-          found = true;
-        }
-      }
-      if (!found) {
-        dataBrowser.push(elementBrowser);
-      }
-    }
-    
-    for (let index = 0; index < dataBrowser.length; index++) {
-      labelsBrowser.push(dataBrowser[index].x);
-    }
-    
-    //OS DATA
     let dataOs = [];
     let lablesOs = [];
-    
-    for (let index = 0; index < totalClicks; index++) {
-      const elementOs = { x: clicks[index].os, y: 1 };
-      let found = false;
-      
-      for (let x = 0; x < dataOs.length; x++) {
-        if (dataOs[x].x === elementOs.x) {
-          dataOs[x].y += 1;
-          found = true;
-        }
-      }
-      if (!found) {
-        dataOs.push(elementOs);
-      }
-    }
-    
-    for (let index = 0; index < dataOs.length; index++) {
-        lablesOs.push(dataOs[index].x);
+
+    for (let i = 0; i < totalClicks; i++) {
+      //BROWSERS
+      if (labelsBrowser.indexOf(clicks[i].browser) == -1) {
+        labelsBrowser.push(clicks[i].browser);
       }
 
-      res.render("analyticsById", {
-        pageTitle: "Analytics!",
-        dataBrowser: JSON.stringify(dataBrowser),
-        labelsBrowser: JSON.stringify(labelsBrowser),
-        dataOs: JSON.stringify(dataOs),
-        lablesOs: JSON.stringify(lablesOs),
-        totalClicks: totalClicks,
-        user: req.session.user,
-      });
-    }catch (err) {
-      res.redirect("/error");
+      let indexBrowser = labelsBrowser.indexOf(clicks[i].browser);
+      if (isNaN(dataBrowser[indexBrowser])) {
+        dataBrowser[indexBrowser] = 1;
+      } else {
+        dataBrowser[indexBrowser]++;
+      }
+
+      //OS
+      if (lablesOs.indexOf(clicks[i].os) == -1) {
+        lablesOs.push(clicks[i].os);
+      }
+
+      let indexOs = lablesOs.indexOf(clicks[i].os);
+      if (isNaN(dataOs[indexOs])) {
+        dataOs[indexOs] = 1;
+      } else {
+        dataOs[indexOs]++;
+      }
     }
-  };
-  
-  exports.getLogout = (req, res, next) => {
-    req.session.user = undefined;
-    res.redirect("/login");
-  };
-  
-  exports.getError = (req, res, next) => {
-    res.render("error", {
-      pageTitle: "Error",
+
+    res.render("analyticsById", {
+      pageTitle: "Analytics!",
+      dataBrowser: JSON.stringify(dataBrowser),
+      labelsBrowser: JSON.stringify(labelsBrowser),
+      dataOs: JSON.stringify(dataOs),
+      lablesOs: JSON.stringify(lablesOs),
+      totalClicks: totalClicks,
+      user: req.session.user,
     });
-  };
-  
+  } catch (err) {
+    res.redirect("/error");
+  }
+};
+
+exports.getLogout = (req, res, next) => {
+  req.session.user = undefined;
+  res.redirect("/login");
+};
+
+exports.getError = (req, res, next) => {
+  res.render("error", {
+    pageTitle: "Error",
+  });
+};

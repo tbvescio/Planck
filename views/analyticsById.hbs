@@ -7,35 +7,26 @@
 
 
     {{#if totalClicks}}
-    <h1>
-        Total clicks: {{totalClicks}}
+    <h1 class="title is-1 is-size-3-mobile has-text-centered has-text-weight-bold" style="margin: 1.5em 0">
+        Total clicks: <span class="has-text-primary">{{totalClicks}}</span>
     </h1>
 
 
-    <div class="d-flex justify-content-center">
-        <div class="row col-12">
-            <div class="col" style="margin-bottom: 2em;">
-                <div class="card">
-                    <div class="card-body" style="height: 20em;">
-                        <canvas id="chartBrowser"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card">
-                    <div class="card-body" style="height: 20em;">
-                        <canvas id="chartOs"></canvas>
-                    </div>
-                </div>
-            </div>
+    <div style="margin-bottom: 2em;">
+        <div style="height: 20em;">
+            <canvas id="chartBrowser"></canvas>
         </div>
     </div>
-
+    <div>
+        <div style="height: 20em;">
+            <canvas id="chartOs"></canvas>
+        </div>
+    </div>
 
     <script>
         var ctx = document.getElementById('chartBrowser').getContext('2d');
         var chartBrowser = new Chart(ctx, {
-            type: 'bar',
+            type: 'pie',
             data: {
                 labels: {{{ labelsBrowser }}},
         datasets: [{
@@ -57,7 +48,7 @@
             'rgba(153, 102, 255, 1)',
             'rgba(255, 159, 64, 1)'
         ],
-            borderWidth: 1
+            borderWidth: 2
         }]
     },
         options: {
@@ -69,6 +60,7 @@
                         beginAtZero: true
                     }
                 }]
+                
             }
         }
 });
@@ -77,7 +69,7 @@
     <script>
         var ctx = document.getElementById('chartOs').getContext('2d');
         var chartOs = new Chart(ctx, {
-            type: 'bar',
+            type: 'pie',
             data: {
                 labels: {{{ lablesOs }}},
         datasets: [{
@@ -117,104 +109,12 @@
     </script>
 
     {{else}}
-    <div class="alert alert-danger" role="alert">
-        <h1>No analytics to show!</h1>
+    <div class="notification is-danger">
+        <p class="has-text-weight-bold is-size-5">
+            No analytics to show!
+        </p>
     </div>
     {{/if}}
 
-
-    <style>
-        @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            padding: 0;
-            margin: 0;
-            font-family: 'Open Sans', sans-serif;
-            color: white;
-            background-color: #323738;
-        }
-
-        main {
-            padding: 1rem;
-            margin: auto;
-        }
-
-
-        .main-header {
-            width: 100%;
-            height: 3.5rem;
-            background-color: #0fcca6;
-            padding: 0 1.5rem;
-
-        }
-
-        .main-header__nav {
-            height: 100%;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-        }
-
-
-        .main-header__item-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-
-        .main-header__item {
-            margin: 0 1rem;
-            padding: 0;
-        }
-
-        .main-header__item a {
-            text-decoration: none;
-            color: white;
-        }
-
-        .main-header__item a:hover,
-        .main-header__item a:active,
-        .main-header__item a.active {
-            color: #BB86FC;
-        }
-
-        .canvas {
-            display: inline-flex;
-        }
-
-        h1 {
-            margin-left: 40%;
-        }
-
-        .errorMessage {
-            color: #CF6679;
-        }
-
-        footer {
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            color: white;
-            text-align: center;
-            margin-bottom: 2em;
-        }
-
-        footer a {
-            text-decoration: none;
-            color: white;
-        }
-
-        footer a:hover {
-            color: #BB86FC;
-        }
-    </style>
 
 </main>

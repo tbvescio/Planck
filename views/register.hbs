@@ -1,29 +1,65 @@
 <main>
     {{#if errorMessage}}
-     <div class="alert alert-danger" role="alert">
-        {{errorMessage}}
+    <div class="notification is-danger">
+        <p class="has-text-weight-bold is-size-5">
+            {{errorMessage}}
+        </p>
     </div>
     {{/if}}
-    <div class="d-flex justify-content-center h-100" style="margin-top: 15%;">
-        <div class="card-container">
-            <form action="/register" method="POST">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" class="form-control " name="username" value="{{oldInput.username}}"
-                        placeholder="Enter your username">
+
+
+    <section class="section pt-0 mt-6">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-one-third">
+                    <form action="/register" method="POST">
+                        <div class="m-6">
+                            <h1 class="title is-1 has-text-centered has-text-weight-bold">Sign Up</h1>
+                            <p class="subtitle has-text-centered m-1 is-6">Already have an account? <a
+                                    href="/login">Login</a>
+                            </p>
+                        </div>
+                        <div class="field">
+                            <p class="control has-icons-left has-icons-right">
+                                <input class="input" type="text" name="username" placeholder="Username"
+                                    value="{{oldInput.username}}">
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <span class="icon is-small is-right">
+                                    <i class="fas fa-check"></i>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="field mt-5">
+                            <p class="control has-icons-left">
+                                <input class="input" type="password" name="password" placeholder="Password"
+                                    value="{{oldInput.password}}">
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="field mt-5">
+                            <p class="control has-icons-left">
+                                <input class="input" type="password" name="passwordConfirm" placeholder="Confirm Password"
+                                    value="{{oldInput.confirmPassword}}">
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="field mt-6">
+                            <p class="control">
+                                <button class="button is-primary is-fullwidth">
+                                    Submit
+                                </button>
+                            </p>
+                        </div>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" name="password" class="form-control " value="{{oldInput.password}}"
-                        placeholder="Password">
-                </div>
-                <div class="form-group">
-                    <label for="password">Confirm Password</label>
-                    <input type="password" name="passwordConfirm" class="form-control " value="{{oldInput.confirmPassword}}"
-                        placeholder="Password">
-                </div>
-                <button type="submit" class="btn btn-primary col form-btn">Submit</button>
-            </form>
+            </div>
         </div>
-    </div>
+    </section>
+
 </main>

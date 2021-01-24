@@ -1,24 +1,45 @@
 <main>
-    {{#if ids}}
-    <div class="d-flex justify-content-center h-100">
-        <div class="row col-md-8" style="display: block;">
-            <h1>Your Urls:</h1>
-            <div class="card col" style="color: black; word-spacing: 1em;">
-                {{#each ids}}
-                <a href="/analytics/{{this.idURLs}}" style="color: inherit">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item col">Shortened:
-                            <strong>{{../domain}}{{this.urlConverted}}</strong><br />
-                            Original: {{this.url}}</li>
-                    </ul>
-                </a>
-                {{/each}}
-            </div>
-        </div>
-    </div>
+    {{#if urls}}
+    <table class="table is-bordered is-hoverable" style="margin: 6em auto">
+        <thead>
+            <tr>
+                <th>Original URL</th>
+                <th>Short URL</th>
+                <th>Created on</th>
+                <th> </th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each urls}}
+            <tr>
+                <td>{{this.url}}</td>
+                <td>
+                    <a href="{{../domain}}{{this.urlConverted}}" class="is-vcentered ">
+                        <span class="icon is-small is-left">
+                            <i class="fas fa-external-link-alt"></i>
+                        </span>
+                        <span>{{../domain}}{{this.urlConverted}}</span>
+
+                    </a>
+                </td>
+                <td>{{this.createdAt}}</td>
+                <td>
+                    <a class="button is-link is-light" href="/analytics/{{this.idURLs}}">
+                        <span class="icon is-small is-left">
+                            <i class="far fa-chart-bar"></i>
+                        </span>
+                        <span>Analytics</span>
+                    </a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
     {{else}}
-    <div class="alert alert-danger" role="alert">
-        <h1>You don't have Urls</h1>
+    <div class="notification is-danger">
+        <p class="has-text-weight-bold is-size-5">
+            You don't have Urls
+        </p>
     </div>
     {{/if}}
 </main>
