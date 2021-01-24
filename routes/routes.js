@@ -6,8 +6,6 @@ const authController = require("../controllers/auth");
 router.get("/", controller.getHome);
 router.post("/", controller.postAddUrl);
 
-router.get("/favicon.ico", (req, res) => res.status(204));
-
 router.get("/register", authController.getRegister);
 router.post("/register", authController.postRegister);
 

@@ -20,11 +20,14 @@
             <div class="columns is-centered">
                 <div class="column is-half">
                     <img class="mt-6" src="/main-picture.svg"
-                        style="width: 70%; height: auto;display: block; margin: 0 auto;">
+                        style="width: 70%; height: auto;display: block; margin: 0 auto;" alt="homepage landing image">
 
-                    <h1 class="title is-1 is-size-3-mobile has-text-centered has-text-weight-bold mt-6">Shorten any link.</h1>
-                    <h2 class="subtitle is-size-6-mobile has-text-centered mt-3">Build, track and protect your brand using powerful,
-                        recognizable and short links. <span class="has-text-primary">Completely free. Forever.</span>
+                    <h1 class="title is-1 is-size-3-mobile has-text-centered has-text-weight-bold mt-6">Shorten any
+                        link.</h1>
+                    <h2 class="subtitle is-size-6-mobile has-text-centered mt-3">Build, track and protect your brand
+                        using powerful,
+                        recognizable and short links. <span class="has-text-primary has-text-weight-bold">Completely
+                            free. Forever.</span>
                     </h2>
                 </div>
             </div>
@@ -35,10 +38,11 @@
     <form action="/" method="POST">
         <div class="field has-addons has-addons-centered">
             <div class="control ">
-                <input class="input is-medium" type="url" name="url" placeholder="Enter your url here!" />
+                <input class="input is-medium" type="url" name="url" id="url" placeholder="Enter your url here!"
+                    aria-labelledby="Enter your url here" />
             </div>
             <div class="control">
-                <button type="submit" class="button is-primary is-medium">Submit</button>
+                <button type="submit" class="button is-primary is-medium has-text-weight-bold">Submit</button>
             </div>
         </div>
     </form>
