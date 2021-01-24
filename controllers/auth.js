@@ -14,9 +14,9 @@ exports.getRegister = (req, res) => {
 };
 
 exports.postRegister = async (req, res) => {
-  const { username, password, confirmPassword } = req.body;
+  const { username, password, passwordConfirm } = req.body;
   try {
-    if (password !== confirmPassword) {
+    if (password !== passwordConfirm) {
       throw new Error("Passwords don't match!");
     }
 
@@ -40,7 +40,7 @@ exports.postRegister = async (req, res) => {
       oldInput: {
         username: username,
         password: password,
-        confirmPassword: confirmPassword,
+        confirmPassword: passwordConfirm,
       },
     });
   }
@@ -57,8 +57,9 @@ exports.getLogin = (req, res) => {
 exports.postLogin = async (req, res) => {
   const { username, password } = req.body;
   try {
-    const [rows] = await db.execute("SELECT * FROM users");
-
+    const [rows] = await db.execute("SELECT * FROM users WHERE username=?", [
+      username,
+    ]);
     if (rows.length == 0) {
       throw new Error("Incorrect data!");
     }

@@ -52,15 +52,19 @@
         }]
     },
         options: {
+            title: {
+                display: true,
+                    text: 'Clicks per Browser'
+            },
             responsive: true,
                 maintainAspectRatio: false,
                     scales: {
                 yAxes: [{
                     ticks: {
-                        beginAtZero: true
+                        display: false
                     }
                 }]
-                
+
             }
         }
 });
@@ -95,12 +99,16 @@
         }]
     },
         options: {
+            title: {
+                display: true,
+                    text: 'Clicks per Operating System'
+            },
             responsive: true,
                 maintainAspectRatio: false,
                     scales: {
                 yAxes: [{
                     ticks: {
-                        beginAtZero: true
+                        display: false
                     }
                 }]
             }
