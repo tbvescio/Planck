@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  mysql-db:
+    image: mysql
+    restart: always
+    container_name: api-db
+    environment:
+      MYSQL_DATABASE: "db"
+      MYSQL_ROOT_PASSWORD: "passwd"
+    volumes:
+      - "./script.sql:/docker-entrypoint-initdb.d/1.sql"
+    expose:
+      - "3306"
+  app:
+    build: .
+    container_name: planck-app
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_NAME=db
+      - DB_PASSWORD=passwd
+      - DB_PORT=3306
+      - DB_USER=root
+      - DOMAIN=localhost:3000/
+      - SESSION_SECRET=secret
+    depends_on:
+      - mysql-db
