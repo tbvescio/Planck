@@ -1,4 +1,7 @@
 const db = require("../util/database").db;
+const base10_to_base64 = require("../util/base").base10_to_base64;
+const base64_to_base10= require("../util/base").base64_to_base10;
+
 
 exports.getHome = (req, res, next) => {
   res.render("home", {
@@ -7,6 +10,7 @@ exports.getHome = (req, res, next) => {
     domain: process.env.DOMAIN,
   });
 };
+
 
 exports.postAddUrl = async (req, res, next) => {
   try {
@@ -32,8 +36,7 @@ exports.postAddUrl = async (req, res, next) => {
     let nextId = lastId[0].n + 1;
 
     //Convert nextId to base64
-    let buff = Buffer.from(nextId.toString());
-    let urlConverted = buff.toString("base64");
+    let urlConverted = base10_to_base64(nextId);
 
     await db.execute(
       "INSERT INTO urls (idURLs,url, urlConverted, idUser, createdAt) VALUES (?,?,?,?,?)",
@@ -55,12 +58,13 @@ exports.postAddUrl = async (req, res, next) => {
   }
 };
 
+
+
 exports.getRedirect = async (req, res, next) => {
   try {
     //decode the url from base64
     const encodedUrl = req.params.url;
-    let binaryData = Buffer.from(encodedUrl, "base64");
-    let decoded = binaryData.toString("utf8");
+    let decoded = base64_to_base10(encodedUrl)
 
     const [
       fetchedUrl,
